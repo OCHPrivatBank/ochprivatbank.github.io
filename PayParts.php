@@ -1,14 +1,7 @@
 <?php
 
-/**
- * Created by PhpStorm.
- * User: Администратор
- * Date: 27.04.2016
- * Time: 9:12
- */
 class PayParts
 {
-
     private $prefix = 'ORDER';
     private $OrderID;              //Уникальный номер платежа
     private $StoreId;              //Идентификатор магазина
@@ -18,7 +11,7 @@ class PayParts
     private $ResponseUrl;          //URL, на который Банк отправит результат сделки
     private $RedirectUrl;          //URL, на который Банк сделает редирект клиента
     private $Amount;               //Окончательная сумма покупки, без плавающей точки
-    private $ProductsList;         //
+    private $ProductsList;
     private $RecipientId;
     private $Currency;
     private $Products_String;
@@ -54,13 +47,13 @@ class PayParts
      *
      * ResponseUrl - URL, на который Банк отправит результат сделки (НЕ ОБЯЗАТЕЛЬНО)<br>
      * RedirectUrl - URL, на который Банк сделает редирект клиента (НЕ ОБЯЗАТЕЛЬНО)<br>
-     *PartsCount - Количество частей на которые делится сумма транзакции ( >1)<br>
-     *Prefix - параметр не обязательный если Prefix указан с пустотой или не указа вовсе префикс будет ORDER<br>
-     *OrderID' - если OrderID задан с пустотой или не укан вовсе OrderID сгенерится автоматически<br>
-     *merchantType - II - Мгновенная рассрочка; PP - Оплата частями<br>
-     *Currency' - можна указать другую валюту 980 – Украинская гривна; 840 – Доллар США; 643 – Российский рубль. Значения в соответствии с ISO<br>
-     *ProductsList - Список продуктов, каждый продукт содержит поля: name - Наименование товара price - Цена за еденицу товара (Пример: 100.00) count - Количество товаров данного вида<br>
-     *recipientId - Идентификатор получателя, по умолчанию берется основной получатель. Установка основного получателя происходит в профиле магазина.
+     * PartsCount - Количество частей на которые делится сумма транзакции ( >1)<br>
+     * Prefix - параметр не обязательный если Prefix указан с пустотой или не указа вовсе префикс будет ORDER<br>
+     * OrderID' - если OrderID задан с пустотой или не укан вовсе OrderID сгенерится автоматически<br>
+     * merchantType - II - Мгновенная рассрочка; PP - Оплата частями<br>
+     * Currency' - можна указать другую валюту 980 – Украинская гривна; 840 – Доллар США; 643 – Российский рубль. Значения в соответствии с ISO<br>
+     * ProductsList - Список продуктов, каждый продукт содержит поля: name - Наименование товара price - Цена за еденицу товара (Пример: 100.00) count - Количество товаров данного вида<br>
+     * recipientId - Идентификатор получателя, по умолчанию берется основной получатель. Установка основного получателя происходит в профиле магазина.
      *
      */
 
@@ -111,7 +104,7 @@ class PayParts
         if ($this->options['SUCCESS']) {
 
             //проверка метода
-            if ($method == 'hold') {
+            if ($method === 'hold') {
                 $Url = $this->HoldURL;
                 $this->LOG['Type'] = 'Hold';
             } else {
@@ -375,7 +368,8 @@ class PayParts
     private function setResponseUrl(
         /** @noinspection PhpDocSignatureInspection */
         $argument
-    ) {
+    )
+    {
         if (!empty($argument)) {
             $this->ResponseUrl = $argument;
         }
@@ -385,7 +379,8 @@ class PayParts
     private function setRedirectUrl(
         /** @noinspection PhpDocSignatureInspection */
         $argument
-    ) {
+    )
+    {
         if (!empty($argument)) {
             $this->RedirectUrl = $argument;
         }
@@ -395,7 +390,8 @@ class PayParts
     private function setPartsCount(
         /** @noinspection PhpDocSignatureInspection */
         $argument
-    ) {
+    )
+    {
         if ($argument < 1) {
             throw new InvalidArgumentException('PartsCount cannot be <1 ');
         }
@@ -406,7 +402,8 @@ class PayParts
     private function setPrefix(
         /** @noinspection PhpDocSignatureInspection */
         $argument = ''
-    ) {
+    )
+    {
         if (!empty($argument)) {
             $this->prefix = $argument;
         }
@@ -416,7 +413,8 @@ class PayParts
     private function setOrderID(
         /** @noinspection PhpDocSignatureInspection */
         $argument = ''
-    ) {
+    )
+    {
         if (empty($argument)) {
             $this->OrderID = $this->prefix . '-' . strtoupper(sha1(time() . rand(1, 99999)));
         } else {
@@ -430,7 +428,8 @@ class PayParts
     private function setRecipientId(
         /** @noinspection PhpDocSignatureInspection */
         $argument = ''
-    ) {
+    )
+    {
         if (!empty($argument)) {
             $this->RecipientId = $argument;
         }
@@ -440,7 +439,8 @@ class PayParts
     private function setMerchantType(
         /** @noinspection PhpDocSignatureInspection */
         $argument
-    ) {
+    )
+    {
         if (in_array($argument, array('II', 'PP'))) {
             $this->merchantType = $argument;
         } else {
@@ -452,7 +452,8 @@ class PayParts
     private function setCurrency(
         /** @noinspection PhpDocSignatureInspection */
         $argument = ''
-    ) {
+    )
+    {
         if (!empty($argument)) {
             if (in_array($argument, array('980', '840', '643'))) {
                 $this->Currency = $argument;
@@ -466,7 +467,8 @@ class PayParts
     private function setProductsList(
         /** @noinspection PhpDocSignatureInspection */
         $argument
-    ) {
+    )
+    {
         if (!empty($argument) and is_array($argument)) {
             foreach ($argument as $arr) {
                 foreach ($this->Keys_Prods as $item) {

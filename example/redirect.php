@@ -1,11 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Администратор
- * Date: 16.05.2016
- * Time: 14:15
- */
-require_once('class/PayParts.php');
+require_once('../PayParts.php');
 session_start();
 
 $pp = new PayParts($_SESSION['StoreId'], $_SESSION['Password']);
@@ -13,11 +7,9 @@ $getState = $pp->getState($_SESSION['OrderID'], false); //orderId, showRefund
 
 /*можно ожидать результат платежа который пришёл в ResponseUrl*/
 
-
 var_dump($getState);
 
-
-if ($getState['paymentState'] == 'SUCCESS') {
+if ($getState['paymentState'] === 'SUCCESS') {
     echo 'SUCCESS';
     /*проводим проводки на магазине оплата прошла
     если был создан Отложенный платеж то делаем подтверждение
