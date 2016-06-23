@@ -7,7 +7,7 @@ $getState = $pp->getState($_SESSION['OrderID'], false); //orderId, showRefund
 
 /*можно ожидать результат платежа который пришёл в ResponseUrl*/
 
-var_dump($getState);
+//var_dump($getState);
 
 if ($getState['paymentState'] === 'SUCCESS') {
     echo 'SUCCESS';
