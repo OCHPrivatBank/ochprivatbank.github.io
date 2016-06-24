@@ -37,9 +37,9 @@ $options = array(
 if (array_key_exists('send',$_POST)) {
     $pp = new PayParts($_SESSION['StoreId'], $_SESSION['Password']);
 
-    $pp->SetOptions($options);
+    $pp->setOptions($options);
 
-    $send = $pp->Create('hold');//hold //pay
+    $send = $pp->create('hold');//hold //pay
 
     $_SESSION['OrderID'] = $pp->getLOG()['OrderID'];
     //var_dump($pp->getLOG());

@@ -10,6 +10,7 @@ $pp = new PayParts($_SESSION['StoreId'], $_SESSION['Password']);
 $getState = $pp->getState($_SESSION['OrderID'], false); //orderId, showRefund
 
 /*можно ожидать результат платежа который пришёл в ResponseUrl*/
+var_dump($_SESSION['OrderID']);
 
 if ($getState['paymentState'] === 'SUCCESS') {
     echo 'SUCCESS';
