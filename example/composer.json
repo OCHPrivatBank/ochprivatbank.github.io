@@ -1,0 +1,11 @@
+{
+    "name": "xpyct/example",
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-0": {
+            "PayParts\\PayParts": ["../src/"]
+        },
+        "classmap": ["../src/"]
+    }
+}

@@ -1,8 +1,26 @@
 {
-    "name": "privatbank/payparts",
-    "license": "MIT",
-    "description": "Класс оплаты частями ПриватБанка",
-    "require": {
-        "php": "^5.3.3 || ^7.0"
-    }
+  "name": "privatbank/payparts",
+  "description": "Класс оплаты частями ПриватБанка",
+  "version": "1.0.0",
+  "keywords": ["privatbank", "pay", "pay part"],
+  "license": "MIT",
+  "support": {
+    "issues": "https://github.com/OCHPrivatBank/ochprivatbank.github.io/issues",
+    "source": "https://github.com/OCHPrivatBank/ochprivatbank.github.io",
+    "docs": "https://github.com/OCHPrivatBank/ochprivatbank.github.io/wiki"
+  },
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=5.4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "PayParts\\": "src/"
+    },
+    "psr-0": {
+      "PayParts": "src/",
+      "": "src/"
+    },
+    "classmap": ["src/"]
+  }
 }

@@ -1,6 +1,9 @@
 <?php
-require_once('../PayParts.php');
-require_once('params.php');
+require __DIR__ . '/vendor/autoload.php';
+
+use PayParts\PayParts;
+
+$params = require_once('params.php');
 
 $storeId = $params['StoreId'];                //Идентификатор магазина
 $password = $params['Password'];              //Пароль вашего магазина

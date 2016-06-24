@@ -1,7 +1,10 @@
-<?php
-header('Content-Type: text/html; charset=utf-8');
-require_once('../PayParts.php');
-require_once('params.php');
+<?php header('Content-Type: text/html; charset=utf-8');
+
+require __DIR__ . '/vendor/autoload.php';
+
+use PayParts\PayParts;
+
+$params = require_once('params.php');
 
 session_start();
 $host=$_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'];
@@ -31,7 +34,7 @@ $options = array(
     'recipientId' => ''                              //Идентификатор получателя, по умолчанию берется основной получатель. Установка основного получателя происходит в профиле магазина.
 );
 
-if (isset($_POST['send'])) {
+if (array_key_exists('send',$_POST)) {
     $pp = new PayParts($_SESSION['StoreId'], $_SESSION['Password']);
 
     $pp->SetOptions($options);
@@ -55,10 +58,10 @@ if (isset($_POST['send'])) {
             <td>Цена</td>
 
         </tr>
-        <? foreach ($ProductsList as $product) {
+        <?php foreach ($ProductsList as $product) {
             echo '<tr>';
             foreach ($product as $item => $value) {
-                echo "<td> $value </td>";
+                echo "<td> {$value} </td>";
             }
             echo '</tr>';
         } ?>

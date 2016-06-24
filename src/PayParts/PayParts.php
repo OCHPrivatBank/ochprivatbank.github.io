@@ -1,5 +1,9 @@
 <?php
 
+namespace PayParts;
+
+use InvalidArgumentException;
+
 class PayParts
 {
     private $prefix = 'ORDER';
@@ -7,7 +11,7 @@ class PayParts
     private $StoreId;              //Идентификатор магазина
     private $Password;             //Пароль вашего магазина
     private $PartsCount;           //Количество частей на которые делится сумма транзакции ( >1)
-    private $merchantType;         //Тип кредита
+    private $MerchantType;         //Тип кредита
     private $ResponseUrl;          //URL, на который Банк отправит результат сделки
     private $RedirectUrl;          //URL, на который Банк сделает редирект клиента
     private $Amount;               //Окончательная сумма покупки, без плавающей точки
@@ -23,22 +27,22 @@ class PayParts
 
     private $LOG = array();
 
-
     private $Keys_Prods = ['name', 'count', 'price'];
 
-    private $options = ['PartsCount', 'merchantType', 'ProductsList'];
+    private $options = ['PartsCount', 'MerchantType', 'ProductsList'];
 
     /**
      * PayParts constructor.
      * создаём идентификаторы магазина
+     *
      * @param string $StoreId - Идентификатор магазина
      * @param string $Password - Пароль вашего магазина
+     * @throws \InvalidArgumentException
      */
     public function __construct($StoreId, $Password)
     {
         $this->setStoreId($StoreId);
         $this->setPassword($Password);
-
     }
 
     /**
@@ -50,22 +54,21 @@ class PayParts
      * PartsCount - Количество частей на которые делится сумма транзакции ( >1)<br>
      * Prefix - параметр не обязательный если Prefix указан с пустотой или не указа вовсе префикс будет ORDER<br>
      * OrderID' - если OrderID задан с пустотой или не укан вовсе OrderID сгенерится автоматически<br>
-     * merchantType - II - Мгновенная рассрочка; PP - Оплата частями<br>
+     * MerchantType - II - Мгновенная рассрочка; PP - Оплата частями<br>
      * Currency' - можна указать другую валюту 980 – Украинская гривна; 840 – Доллар США; 643 – Российский рубль. Значения в соответствии с ISO<br>
      * ProductsList - Список продуктов, каждый продукт содержит поля: name - Наименование товара price - Цена за еденицу товара (Пример: 100.00) count - Количество товаров данного вида<br>
      * recipientId - Идентификатор получателя, по умолчанию берется основной получатель. Установка основного получателя происходит в профиле магазина.
-     *
+     * @throws InvalidArgumentException - Ошибка установки аргумента
      */
-
-    public function SetOptions($options = [])
+    public function SetOptions(array $options)
     {
-        if (empty($options) or !is_array($options)) {
-            throw new InvalidArgumentException("Options must by set as array");
+        if (empty($options) || !is_array($options)) {
+            throw new InvalidArgumentException('Options must by set as array');
         } else {
 
             foreach ($options as $PPOptions => $value) {
-                if (method_exists('PayParts', "Set$PPOptions")) {
-                    call_user_func_array(array($this, "Set$PPOptions"), array($value));
+                if (method_exists('PayParts\PayParts', "set$PPOptions")) {
+                    call_user_func_array(array($this, "set$PPOptions"), array($value));
                 } else {
                     throw new InvalidArgumentException($PPOptions . ' cannot be set by this setter');
                 }
@@ -76,12 +79,12 @@ class PayParts
 
         foreach ($this->options as $variable) {
             if (isset($this->{$variable})) {
-                $flag += 1;
+                ++$flag;
             } else {
                 throw new InvalidArgumentException($variable . ' is necessary');
             }
         }
-        if ($flag == count($this->options)) {
+        if ($flag === count($this->options)) {
             $this->options['SUCCESS'] = true;
         } else {
             $this->options['SUCCESS'] = false;
@@ -91,13 +94,12 @@ class PayParts
     /**
      * PayParts Create.
      * Создание платежа
+     *
      * @param string $method
      * <a href="https://bw.gitbooks.io/api-oc/content/pay.html">'hold'</a> - Создание платежа без списания<br>
-     * <a href="https://bw.gitbooks.io/api-oc/content/hold.html">'pay'</a> - Создание платежа со списания
-     *
-     *
+     * <a href="https://bw.gitbooks.io/api-oc/content/hold.html">'pay'</a> - Создание платежа со списанием
      * @return mixed|string
-     *
+     * @throws \InvalidArgumentException
      */
     public function Create($method = 'pay')
     {
@@ -118,7 +120,7 @@ class PayParts
                 $this->OrderID,
                 (string)($this->Amount * 100),
                 $this->PartsCount,
-                $this->merchantType,
+                $this->MerchantType,
                 $this->ResponseUrl,
                 $this->RedirectUrl,
                 $this->Products_String,
@@ -129,7 +131,7 @@ class PayParts
             $param['orderId'] = $this->OrderID;
             $param['amount'] = $this->Amount;
             $param['partsCount'] = $this->PartsCount;
-            $param['merchantType'] = $this->merchantType;
+            $param['merchantType'] = $this->MerchantType;
             $param['products'] = $this->ProductsList;
             $param['responseUrl'] = $this->ResponseUrl;
             $param['redirectUrl'] = $this->RedirectUrl;
@@ -160,7 +162,7 @@ class PayParts
 
             $this->LOG['CreateResult'] = json_encode($CreateResult);
 
-            if ($this->CalcSignature($checkSignature) == $CreateResult['signature']) {
+            if ($this->CalcSignature($checkSignature) === $CreateResult['signature']) {
                 return $CreateResult;
             } else {
                 return 'error';
@@ -168,7 +170,7 @@ class PayParts
 
 
         } else {
-            throw new InvalidArgumentException("No options");
+            throw new InvalidArgumentException('No options');
         }
 
     }
@@ -186,10 +188,10 @@ class PayParts
         $SignatureForCall = [$this->Password, $this->StoreId, $orderId, $this->Password];
 
         $data = array(
-            "storeId" => $this->StoreId,
-            "orderId" => $orderId,
-            "showRefund" => var_export($showRefund, true), //($showRefund) ? 'true' : 'false'
-            "signature" => $this->CalcSignature($SignatureForCall)
+            'storeId' => $this->StoreId,
+            'orderId' => $orderId,
+            'showRefund' => var_export($showRefund, true), //($showRefund) ? 'true' : 'false'
+            'signature' => $this->CalcSignature($SignatureForCall)
         );
 
         $res = json_decode($this->sendPost($data, $this->StateURL), true);
@@ -204,7 +206,7 @@ class PayParts
             $this->Password
         ];
 
-        if ($this->CalcSignature($ResSignature) == $res['signature']) {
+        if ($this->CalcSignature($ResSignature) === $res['signature']) {
             return $res;
         } else {
             return 'error';
@@ -215,17 +217,17 @@ class PayParts
     /**
      * PayParts checkCallBack.
      * Получение результата сделки (асинхронный коллбэк)
+     *
      * @param string $string результат post запроса
      * @return mixed|string валидирует и отдаёт ответ
      */
     public function checkCallBack($string)
     {
-
         $sa = json_decode($string, true);
 
         $srt = [$this->Password, $this->StoreId, $sa['orderId'], $sa['paymentState'], $sa['message'], $this->Password];
 
-        if ($this->CalcSignature($srt) == $sa['signature']) {
+        if ($this->CalcSignature($srt) === $sa['signature']) {
             return $sa;
         } else {
             return ('error');
@@ -236,6 +238,7 @@ class PayParts
     /**
      * PayParts ConfirmHold.
      * <a href="https://bw.gitbooks.io/api-oc/content/confirm.html">Подтверждение платежа</a>
+     *
      * @param string $orderId Уникальный номер платежа
      * @return mixed|string
      */
@@ -244,28 +247,30 @@ class PayParts
         $signatureForConfirmHold = [$this->Password, $this->StoreId, $orderId, $this->Password];
 
         $data = array(
-            "storeIdentifier" => $this->StoreId,
-            "orderId" => $orderId,
-            "signature" => $this->CalcSignature($signatureForConfirmHold)
+            'storeIdentifier' => $this->StoreId,
+            'orderId' => $orderId,
+            'signature' => $this->CalcSignature($signatureForConfirmHold)
         );
 
         $res = json_decode($this->sendPost($data, $this->ConfirmHoldURL), true);
 
         return $res;
 
-        /** @noinspection PhpUnreachableStatementInspection */
+        /* Проверка временно не доступна, в связи с отсутствием реализации на стороне API
+
         $ResSignature = array($this->Password, $res['storeIdentifier'], $res['orderId'], $this->Password);
 
-        if ($this->CalcSignature($ResSignature) == $res['signature']) {
+        if ($this->CalcSignature($ResSignature) === $res['signature']) {
             return $res;
         } else {
             return 'error';
-        }
+        }*/
     }
 
     /**
      * PayParts CancelHold.
      * <a href="https://bw.gitbooks.io/api-oc/content/cancel.html">Отмена платежа</a>
+     *
      * @param string $orderId Уникальный номер платежа
      * @param string $recipientId Идентификатор получателя, по умолчанию берется основной получатель. Установка основного получателя происходит в профиле магазина.
      * @return mixed|string
@@ -275,33 +280,33 @@ class PayParts
 
         $signatureForCancelHold = [$this->Password, $this->StoreId, $orderId, $this->Password];
 
-
         $data = array(
-            "storeId" => $this->StoreId,
-            "orderId" => $orderId,
-            "signature" => $this->CalcSignature($signatureForCancelHold)
+            'storeId' => $this->StoreId,
+            'orderId' => $orderId,
+            'signature' => $this->CalcSignature($signatureForCancelHold)
         );
         if (!empty($recipientId)) {
             $data['recipientId'] = $recipientId;
         }
 
-
         $res = json_decode($this->sendPost($data, $this->CancelHoldUrl), true);
 
         return $res;
 
-        /** @noinspection PhpUnreachableStatementInspection */
+        /* Проверка временно не доступна, в связи с отсутствием реализации на стороне API
+
         $ResSignature = array($this->Password, $res['storeIdentifier'], $res['orderId'], $this->Password);
 
-        if ($this->CalcSignature($ResSignature) == $res['signature']) {
+        if ($this->CalcSignature($ResSignature) === $res['signature']) {
             return $res;
         } else {
             return 'error';
-        }
+        }*/
     }
 
     /**
      * PayParts getLOG. частичный лог
+     *
      * @return array
      */
     public function getLOG()
@@ -319,7 +324,7 @@ class PayParts
         foreach ($array as $item) {
             $signature .= $item;
         }
-        return (base64_encode(sha1($signature, true)));
+        return base64_encode(sha1($signature, true));
 
     }
 
@@ -333,16 +338,19 @@ class PayParts
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER,
-            ["Content-Type: application/json", "Accept: application/json; charset=utf-8"]);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Accept: application/json; charset=utf-8'
+        ]);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($param));
-        $result = curl_exec($ch);
-        return $result;
+
+        return curl_exec($ch);
     }
 
     /**
      * @param $argument
+     * @throws \InvalidArgumentException
      */
     private function setStoreId($argument)
     {
@@ -354,6 +362,7 @@ class PayParts
 
     /**
      * @param $argument
+     * @throws \InvalidArgumentException
      */
     private function setPassword($argument)
     {
@@ -364,33 +373,21 @@ class PayParts
     }
 
 
-    /** @noinspection PhpUnusedPrivateMethodInspection */
-    private function setResponseUrl(
-        /** @noinspection PhpDocSignatureInspection */
-        $argument
-    )
+    private function setResponseUrl($argument)
     {
         if (!empty($argument)) {
             $this->ResponseUrl = $argument;
         }
     }
 
-    /** @noinspection PhpUnusedPrivateMethodInspection */
-    private function setRedirectUrl(
-        /** @noinspection PhpDocSignatureInspection */
-        $argument
-    )
+    private function setRedirectUrl($argument)
     {
         if (!empty($argument)) {
             $this->RedirectUrl = $argument;
         }
     }
 
-    /** @noinspection PhpUnusedPrivateMethodInspection */
-    private function setPartsCount(
-        /** @noinspection PhpDocSignatureInspection */
-        $argument
-    )
+    private function setPartsCount($argument)
     {
         if ($argument < 1) {
             throw new InvalidArgumentException('PartsCount cannot be <1 ');
@@ -398,25 +395,17 @@ class PayParts
         $this->PartsCount = $argument;
     }
 
-    /** @noinspection PhpUnusedPrivateMethodInspection */
-    private function setPrefix(
-        /** @noinspection PhpDocSignatureInspection */
-        $argument = ''
-    )
+    private function setPrefix($argument = '')
     {
         if (!empty($argument)) {
             $this->prefix = $argument;
         }
     }
 
-    /** @noinspection PhpUnusedPrivateMethodInspection */
-    private function setOrderID(
-        /** @noinspection PhpDocSignatureInspection */
-        $argument = ''
-    )
+    private function setOrderID($argument = '')
     {
         if (empty($argument)) {
-            $this->OrderID = $this->prefix . '-' . strtoupper(sha1(time() . rand(1, 99999)));
+            $this->OrderID = $this->prefix . '-' . strtoupper(sha1(time() . mt_rand(1, 99999)));
         } else {
             $this->OrderID = $this->prefix . '-' . strtoupper($argument);
         }
@@ -424,35 +413,23 @@ class PayParts
         $this->LOG['OrderID'] = $this->OrderID;
     }
 
-    /** @noinspection PhpUnusedPrivateMethodInspection */
-    private function setRecipientId(
-        /** @noinspection PhpDocSignatureInspection */
-        $argument = ''
-    )
+    private function setRecipientId($argument = '')
     {
         if (!empty($argument)) {
             $this->RecipientId = $argument;
         }
     }
 
-    /** @noinspection PhpUnusedPrivateMethodInspection */
-    private function setMerchantType(
-        /** @noinspection PhpDocSignatureInspection */
-        $argument
-    )
+    private function setMerchantType($argument)
     {
         if (in_array($argument, array('II', 'PP'))) {
-            $this->merchantType = $argument;
+            $this->MerchantType = $argument;
         } else {
-            throw new InvalidArgumentException('merchantType must be in array(\'II\', \'PP\')');
+            throw new InvalidArgumentException('MerchantType must be in array(\'II\', \'PP\')');
         }
     }
 
-    /** @noinspection PhpUnusedPrivateMethodInspection */
-    private function setCurrency(
-        /** @noinspection PhpDocSignatureInspection */
-        $argument = ''
-    )
+    private function setCurrency($argument = '')
     {
         if (!empty($argument)) {
             if (in_array($argument, array('980', '840', '643'))) {
@@ -463,11 +440,7 @@ class PayParts
         }
     }
 
-    /** @noinspection PhpUnusedPrivateMethodInspection */
-    private function setProductsList(
-        /** @noinspection PhpDocSignatureInspection */
-        $argument
-    )
+    private function setProductsList($argument)
     {
         if (!empty($argument) and is_array($argument)) {
             foreach ($argument as $arr) {
