@@ -12,16 +12,16 @@
 
 ## Установка
 
-1. установить с помощью косоли :
+* **Вариант 1** - установить с помощью косоли :
 
     composer require privatbank/payparts
-    
+
     ```bash
     $ php composer.phar require privatbank/payparts
     ```
     
 
-2. добавить в `composer.json` :
+* **Вариант 2** - добавить в `composer.json` :
 
     ```json
     {
@@ -31,8 +31,9 @@
     }
     ```
     
-    после чего выполнить 
-    
+    после чего выполнить
+
     ```bash
     composer install
     ```
+    
