@@ -5,6 +5,7 @@
 [![License](https://poser.pugx.org/privatbank/payparts/license)](https://packagist.org/packages/privatbank/payparts)
 [![Build Status](https://travis-ci.org/XpycT/ochprivatbank.github.io.svg?branch=master)](https://travis-ci.org/XpycT/ochprivatbank.github.io)
 [![Coverage Status](https://coveralls.io/repos/github/OCHPrivatBank/ochprivatbank.github.io/badge.svg?branch=master)](https://coveralls.io/github/OCHPrivatBank/ochprivatbank.github.io?branch=master)
+[![Dependency Status](https://www.versioneye.com/user/projects/5777a2ad68ee07004137f594/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/5777a2ad68ee07004137f594)
 
 Вспомогательный класс для оплаты частями от ПриватБанк
 
