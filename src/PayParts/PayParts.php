@@ -172,7 +172,6 @@ class PayParts
                 return 'error';
             }
 
-
         } else {
             throw new InvalidArgumentException('No options');
         }
@@ -414,7 +413,7 @@ class PayParts
     private function setPartsCount($argument)
     {
         if ($argument < 1) {
-            throw new InvalidArgumentException('PartsCount cannot be <1 ');
+            throw new InvalidArgumentException('PartsCount cannot be <1');
         }
         $this->PartsCount = $argument;
     }
