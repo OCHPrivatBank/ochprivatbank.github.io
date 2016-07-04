@@ -18,23 +18,23 @@ $ProductsList = array(
         'price' => 200.00)
 );
 
-
 $_SESSION['StoreId'] =  $params['StoreId'];   //Идентификатор магазина
 $_SESSION['Password'] = $params['Password'];  //Пароль вашего магазина
 
-$options = array(
-    'ResponseUrl' => $host.'/response.php',          //URL, на который Банк отправит результат сделки (НЕ ОБЯЗАТЕЛЬНО)
-    'RedirectUrl' => $host.'/redirect.php',          //URL, на который Банк сделает редирект клиента (НЕ ОБЯЗАТЕЛЬНО)
-    'PartsCount' => 5,                               //Количество частей на которые делится сумма транзакции ( >1)
-    'Prefix' => '',                                  //параметр не обязательный если Prefix указан с пустотой или не указа вовсе префикс будет ORDER
-    'OrderID' => '',                                 //если OrderID задан с пустотой или не укан вовсе OrderID сгенерится автоматически
-    'merchantType' => 'PP',                          //II - Мгновенная рассрочка; PP - Оплата частями
-    'Currency' => '',                                //можна указать другую валюту 980 – Украинская гривна; 840 – Доллар США; 643 – Российский рубль. Значения в соответствии с ISO
-    'ProductsList' => $ProductsList,                 //Список продуктов, каждый продукт содержит поля: name - Наименование товара price - Цена за еденицу товара (Пример: 100.00) count - Количество товаров данного вида
-    'recipientId' => ''                              //Идентификатор получателя, по умолчанию берется основной получатель. Установка основного получателя происходит в профиле магазина.
-);
-
 if (array_key_exists('send',$_POST)) {
+
+    $options = array(
+        'ResponseUrl' => $host.'/response.php',          //URL, на который Банк отправит результат сделки (НЕ ОБЯЗАТЕЛЬНО)
+        'RedirectUrl' => $host.'/redirect.php',          //URL, на который Банк сделает редирект клиента (НЕ ОБЯЗАТЕЛЬНО)
+        'PartsCount' => (int)$_POST['PartsCountInput'],  //Количество частей на которые делится сумма транзакции ( >1)
+        'Prefix' => '',                                  //параметр не обязательный если Prefix указан с пустотой или не указа вовсе префикс будет ORDER
+        'OrderID' => '',                                 //если OrderID задан с пустотой или не укан вовсе OrderID сгенерится автоматически
+        'merchantType' => 'PP',                          //II - Мгновенная рассрочка; PP - Оплата частями
+        'Currency' => '',                                //можна указать другую валюту 980 – Украинская гривна; 840 – Доллар США; 643 – Российский рубль. Значения в соответствии с ISO
+        'ProductsList' => $ProductsList,                 //Список продуктов, каждый продукт содержит поля: name - Наименование товара price - Цена за еденицу товара (Пример: 100.00) count - Количество товаров данного вида
+        'recipientId' => ''                              //Идентификатор получателя, по умолчанию берется основной получатель. Установка основного получателя происходит в профиле магазина.
+    );
+
     $pp = new PayParts($_SESSION['StoreId'], $_SESSION['Password']);
 
     $pp->setOptions($options);
@@ -51,6 +51,7 @@ if (array_key_exists('send',$_POST)) {
 ?>
 
 <form action="" method="POST" xmlns="http://www.w3.org/1999/html">
+    <h2>Оплата частями</h2>
     <table border="1">
         <tr>
             <td>Наименование товара</td>
@@ -67,6 +68,11 @@ if (array_key_exists('send',$_POST)) {
         } ?>
 
     </table>
+    <br>
+    <label for="PartsCountInputId">Количество платежей<em>*</em></label>
+    <input type="range" name="PartsCountInput" id="PartsCountInputId" value="5" min="1" max="10" oninput="PartsCountOutputId.value = PartsCountInputId.value">
+    <output name="PartsCountOutput" id="PartsCountOutputId">5</output>
+    <br><br>
     <input name="send" type="submit" value="Оплатить"/>
 </form>
 
