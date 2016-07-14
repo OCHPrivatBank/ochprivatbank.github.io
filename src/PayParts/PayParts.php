@@ -58,8 +58,8 @@ class PayParts
      * PartsCount - Количество частей на которые делится сумма транзакции ( >1)<br>
      * Prefix - параметр не обязательный если Prefix указан с пустотой или не указа вовсе префикс будет ORDER<br>
      * OrderID' - если OrderID задан с пустотой или не укан вовсе OrderID сгенерится автоматически<br>
-     * MerchantType - II - Мгновенная рассрочка; PP - Оплата частями<br>
-     * Currency' - можна указать другую валюту 980 – Украинская гривна; 840 – Доллар США; 643 – Российский рубль. Значения в соответствии с ISO<br>
+     * MerchantType - II - Мгновенная рассрочка; PP - Оплата частями; PB - Оплата частями. Деньги в периоде. IA - Мгновенная рассрочка. Акционная.<br>
+     * Currency' - Валюта по умолчанию 980 – Украинская гривна; Значения в соответствии с ISO<br>
      * ProductsList - Список продуктов, каждый продукт содержит поля: name - Наименование товара price - Цена за еденицу товара (Пример: 100.00) count - Количество товаров данного вида<br>
      * recipientId - Идентификатор получателя, по умолчанию берется основной получатель. Установка основного получателя происходит в профиле магазина.
      * @throws InvalidArgumentException - Ошибка установки аргумента
@@ -465,10 +465,10 @@ class PayParts
      */
     private function setMerchantType($argument)
     {
-        if (in_array($argument, array('II', 'PP'))) {
+        if (in_array($argument, array('II', 'PP', 'PB', 'IA'))) {
             $this->MerchantType = $argument;
         } else {
-            throw new InvalidArgumentException('MerchantType must be in array(\'II\', \'PP\')');
+            throw new InvalidArgumentException('MerchantType must be in array(\'II\', \'PP\', \'PB\', \'IA\')');
         }
     }
 
@@ -480,7 +480,7 @@ class PayParts
     private function setCurrency($argument = '')
     {
         if (!empty($argument)) {
-            if (in_array($argument, array('980', '840', '643'))) {
+            if (in_array($argument, array('980'))) {
                 $this->currency = $argument;
             } else {
                 throw new InvalidArgumentException('something is wrong with Currency');
