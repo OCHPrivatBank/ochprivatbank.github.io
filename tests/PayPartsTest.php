@@ -167,7 +167,7 @@ class PayPartsTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage MerchantType must be in array('II', 'PP')
+     * @expectedExceptionMessage MerchantType must be in array('II', 'PP', 'PB', 'IA')
      */
     public function testWrongMerchantType()
     {
