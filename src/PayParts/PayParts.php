@@ -5,20 +5,20 @@ namespace PayParts;
 use InvalidArgumentException;
 
 /**
- * Class PayParts
+ * Класс для оплаты частями от Приват Банк
  * @package PayParts
  */
 class PayParts
 {
     private $prefix = 'ORDER';
-    private $orderID;              //Уникальный номер платежа
-    private $storeId;              //Идентификатор магазина
-    private $password;             //Пароль вашего магазина
-    private $PartsCount;           //Количество частей на которые делится сумма транзакции ( >1)
-    private $MerchantType;         //Тип кредита
-    private $responseUrl;          //URL, на который Банк отправит результат сделки
-    private $redirectUrl;          //URL, на который Банк сделает редирект клиента
-    private $amount;               //Окончательная сумма покупки, без плавающей точки
+    private $orderID;              // Уникальный номер платежа
+    private $storeId;              // Идентификатор магазина
+    private $password;             // Пароль вашего магазина
+    private $PartsCount;           // Количество частей на которые делится сумма транзакции ( >1 )
+    private $MerchantType;         // Тип кредита
+    private $responseUrl;          // URL, на который Банк отправит результат сделки
+    private $redirectUrl;          // URL, на который Банк сделает редирект клиента
+    private $amount;               // Окончательная сумма покупки, без плавающей точки
     private $ProductsList;
     private $recipientId;
     private $currency;
@@ -255,9 +255,7 @@ class PayParts
             'signature' => $this->calcSignature($signatureForConfirmHold)
         );
 
-        $res = json_decode($this->sendPost($data, $this->confirmHoldURL), true);
-
-        return $res;
+        return json_decode($this->sendPost($data, $this->confirmHoldURL), true);
 
         /* Проверка временно не доступна, в связи с отсутствием реализации на стороне API
 
@@ -292,9 +290,7 @@ class PayParts
             $data['recipientId'] = $recipientId;
         }
 
-        $res = json_decode($this->sendPost($data, $this->cancelHoldUrl), true);
-
-        return $res;
+        return json_decode($this->sendPost($data, $this->cancelHoldUrl), true);
 
         /* Проверка временно не доступна, в связи с отсутствием реализации на стороне API
 
@@ -318,7 +314,9 @@ class PayParts
     }
 
     /**
-     * @param $array
+     * Вычисление сигнатуры
+     *
+     * @param array $array
      * @return string
      */
     private function calcSignature($array)
@@ -349,6 +347,8 @@ class PayParts
         ]);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($param));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
 
         return curl_exec($ch);
     }
@@ -369,6 +369,7 @@ class PayParts
 
     /**
      * Setter for Password
+     *
      * @param $argument
      * @throws \InvalidArgumentException
      */
@@ -409,6 +410,7 @@ class PayParts
      * Setter for PartsCount
      *
      * @param $argument
+     * @throws \InvalidArgumentException
      */
     private function setPartsCount($argument)
     {
@@ -462,10 +464,11 @@ class PayParts
      * Setter for MerchantType
      *
      * @param $argument
+     * @throws \InvalidArgumentException
      */
     private function setMerchantType($argument)
     {
-        if (in_array($argument, array('II', 'PP', 'PB', 'IA'))) {
+        if (in_array($argument, array('II', 'PP', 'PB', 'IA'), false)) {
             $this->MerchantType = $argument;
         } else {
             throw new InvalidArgumentException('MerchantType must be in array(\'II\', \'PP\', \'PB\', \'IA\')');
@@ -476,11 +479,12 @@ class PayParts
      * Setter for Currency
      *
      * @param string $argument
+     * @throws \InvalidArgumentException
      */
     private function setCurrency($argument = '')
     {
         if (!empty($argument)) {
-            if (in_array($argument, array('980'))) {
+            if (in_array($argument, array('980'), false)) {
                 $this->currency = $argument;
             } else {
                 throw new InvalidArgumentException('something is wrong with Currency');
@@ -492,10 +496,11 @@ class PayParts
      * Setter for ProductList
      *
      * @param $argument
+     * @throws \InvalidArgumentException
      */
     private function setProductsList($argument)
     {
-        if (!empty($argument) and is_array($argument)) {
+        if (!empty($argument) && is_array($argument)) {
             foreach ($argument as $arr) {
                 foreach ($this->keysProducts as $item) {
                     if (!array_key_exists($item, $arr)) {
