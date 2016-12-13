@@ -123,6 +123,7 @@ class PayParts
                 $this->storeId,
                 $this->orderID,
                 (string)($this->amount * 100),
+                $this->currency,
                 $this->PartsCount,
                 $this->MerchantType,
                 $this->responseUrl,
